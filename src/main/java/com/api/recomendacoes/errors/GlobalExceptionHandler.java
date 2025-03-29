@@ -23,6 +23,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidPasswordException(InvalidPasswordException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Invalid password");
+        errorResponse.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     // Handle missing or invalid fields
     // This method is called when a validation error occurs in the request body. It returns all the validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
