@@ -8,7 +8,7 @@ public record UserRequestDTO(
         @NotBlank(message = "Username is required") String username,
         @NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email,
         @NotBlank(message = "Password is required") String password,
-        MultipartFile profilePicture,  // Optional field (no validation)
+        String profilePicture,  // Will save as base64 string
         String profileDescription
 ) {
 }

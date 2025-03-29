@@ -39,24 +39,11 @@ public class UsersService {
         }
 
         User newUser = new User();
-
-        // Checking if the user sent a profile picture. If they did, we upload it to S3
-        if (userRequestDTO.profilePicture() != null) {
-            String imagePath = this.uploadImageToS3(userRequestDTO.profilePicture());
-
-            if (imagePath == null) {
-                throw new RuntimeException("Failed to upload image");
-            }
-
-            newUser.setProfilePicture(imagePath);
-        }
-
         newUser.setUsername(userRequestDTO.username());
         newUser.setEmail(userRequestDTO.email());
         newUser.setPassword(this.hashPassword(userRequestDTO.password())); // Encrypting the password
         newUser.setProfileDescription(userRequestDTO.profileDescription());
-
-        System.out.println("User created: " + newUser);
+        newUser.setProfilePicture(userRequestDTO.profilePicture()); // Assuming this is a base64 string
 
         // Saving the user to the database
         this.userRepository.save(newUser);

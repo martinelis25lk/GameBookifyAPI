@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+// This class is responsible for formating the warnings and errors that occur in the application.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -23,6 +24,7 @@ public class GlobalExceptionHandler {
     }
 
     // Handle missing or invalid fields
+    // This method is called when a validation error occurs in the request body. It returns all the validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
