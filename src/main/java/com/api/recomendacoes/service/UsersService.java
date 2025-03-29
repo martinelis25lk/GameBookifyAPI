@@ -2,13 +2,19 @@ package com.api.recomendacoes.service;
 
 import com.api.recomendacoes.domain.user.User;
 import com.api.recomendacoes.domain.user.UserRequestDTO;
+import com.api.recomendacoes.errors.UserAlreadyExistsException;
 import com.api.recomendacoes.repositories.UserRepository;
 import com.api.recomendacoes.util.PasswordUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -18,7 +24,20 @@ public class UsersService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Integer createUser(UserRequestDTO userRequestDTO) {
+    public User createUser(UserRequestDTO userRequestDTO) {
+
+        // Checking if the user already exists in the database.
+        // I did username and email validation separately to better user experience.
+        Optional<User> existingUserUsername = this.userRepository.findByUsername(userRequestDTO.username());
+        if (existingUserUsername.isPresent()) {
+            throw new UserAlreadyExistsException("Username already exists");
+        }
+
+        Optional<User> existingUserEmail = this.userRepository.findByEmail(userRequestDTO.email());
+        if (existingUserEmail.isPresent()) {
+            throw new UserAlreadyExistsException("Email already exists");
+        }
+
         User newUser = new User();
 
         // Checking if the user sent a profile picture. If they did, we upload it to S3
@@ -42,7 +61,7 @@ public class UsersService {
         // Saving the user to the database
         this.userRepository.save(newUser);
 
-        return newUser.getId();
+        return newUser;
     }
 
     public String uploadImageToS3(MultipartFile profilePicture) {
