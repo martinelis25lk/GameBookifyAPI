@@ -2,6 +2,7 @@ package com.api.recomendacoes.service;
 
 import com.api.recomendacoes.domain.user.User;
 import com.api.recomendacoes.domain.user.UserRequestDTO;
+import com.api.recomendacoes.errors.InvalidPasswordException;
 import com.api.recomendacoes.errors.UserAlreadyExistsException;
 import com.api.recomendacoes.repositories.UserRepository;
 import com.api.recomendacoes.util.PasswordUtil;
@@ -41,7 +42,7 @@ public class UsersService {
         User newUser = new User();
         newUser.setUsername(userRequestDTO.username());
         newUser.setEmail(userRequestDTO.email());
-        newUser.setPassword(this.hashPassword(userRequestDTO.password())); // Encrypting the password
+        newUser.setPassword(this.hashPassword(this.passwordValidation((userRequestDTO.password())))); // Encrypting the password
         newUser.setProfileDescription(userRequestDTO.profileDescription());
         newUser.setProfilePicture(userRequestDTO.profilePicture()); // Assuming this is a base64 string
 
@@ -51,11 +52,12 @@ public class UsersService {
         return newUser;
     }
 
-    public String uploadImageToS3(MultipartFile profilePicture) {
-        // Implement the logic to upload the image to S3
-        // Return the URL of the uploaded image
-        return "1";
-        //return "https://s3.amazonaws.com/your-bucket/" + imagePath;
+    public String passwordValidation(String password){
+        // Password must have at least 8 characters, one uppercase letter, one lowercase letter, and one digit
+        if (password.length() < 8 || !password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
+            throw new InvalidPasswordException("Password must be at least 8 characters long, including one uppercase letter, one lowercase letter, and one digit");
+        }
+        return password;
     }
 
     public String hashPassword(String password) {
