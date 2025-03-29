@@ -1,6 +1,3 @@
-/*
- For now, I'm not thinking about a system of friends or followers. That's why the users table is relatively simple.
-*/
 CREATE TABLE users
 (
     id              SERIAL PRIMARY KEY,
@@ -8,18 +5,47 @@ CREATE TABLE users
     email           VARCHAR(100) NOT NULL UNIQUE,                                    -- This email will be used to authenticate the user
     password_hash   VARCHAR(255) NOT NULL,                                           -- This will be the hash of the password
     profile_picture VARCHAR(255),                                                    -- This will be the URL of the user's profile picture. It will be saved in a s3 bucket later on
+    profile_description TEXT,                                                        -- This will be the description of the user. It will be a text
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                             -- This will be the date when the user registered
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- This will be the date when the user updated his profile
+--    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- This will be the date when the user updated his profile
     is_active       BOOLEAN   DEFAULT TRUE                                           -- This will be true if the user is active and false if the user is inactive, so that we can doesn't delete the user from the database
 );
 
 /*
  Users table indexes
- */
+*/
 CREATE INDEX users_id_idx ON users(id);
 CREATE INDEX users_username_idx ON users(username);
 CREATE INDEX users_email_idx ON users(email);
 
+CREATE TABLE social_medias
+(
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(50)  NOT NULL UNIQUE, -- This will be the name of the social media
+    icon_url        VARCHAR(255) NOT NULL,         -- This will be the URL of the icon of the social media
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+/*
+ Social medias table indexes
+ */
+CREATE INDEX social_medias_id_idx ON social_medias(id);
+CREATE INDEX social_medias_name_idx ON social_medias(name);
+
+CREATE TABLE users_social_medias
+(
+    id              SERIAL PRIMARY KEY,
+    user_id         INTEGER REFERENCES users(id) ON DELETE CASCADE, -- This will be the id of the user who made the recommendation. On delete, set null because I don't want to lose how many recomendations were made
+    social_media_id  INTEGER NOT NULL,                                 -- This will be the id of the social media
+    social_media_url VARCHAR(255) NOT NULL,                           -- This will be the URL of the social media
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP               -- This will be the date when the user registered
+);
+/*
+ Users social medias table indexes
+ */
+CREATE INDEX users_social_medias_id_idx ON users_social_medias(id);
+CREATE INDEX users_social_medias_user_id_idx ON users_social_medias(user_id);
+CREATE INDEX users_social_medias_social_media_id_idx ON users_social_medias(social_media_id);
 
 /*
  This medias table should be enough to store the information of different types of medias from different APIs.
@@ -60,8 +86,7 @@ CREATE TABLE users_recommendations
     user_id           INTEGER REFERENCES users(id) ON DELETE SET NULL, -- This will be the id of the user who made the recommendation. On delete, set null because I don't want to lose how many recomendations were made
     origin_media_id   INTEGER NOT NULL REFERENCES medias(id) ON DELETE CASCADE, -- This will be the id of the media that had the recommendation
     target_media_id   INTEGER NOT NULL REFERENCES medias(id) ON DELETE CASCADE, -- This will be the id of the media that was recommended
-    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                      -- This will be the date when the recommendation was made
-    updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- This will be the date when the recommendation was updated,
+    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP                      -- This will be the date when the recommendation was made
 );
 
 /*
@@ -92,20 +117,18 @@ CREATE TABLE media_recommendations_stats
 CREATE INDEX media_recommendations_stats_id_idx ON media_recommendations_stats(id);
 CREATE INDEX media_upvotes_idx ON media_recommendations_stats(upvotes);
 
-CREATE TABLE media_comments
+CREATE TABLE media_recommendations_comments
 (
-    id           SERIAL PRIMARY KEY,
-    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL, -- This will be the id of the user who made the comment. On delete, set null because I don't want to lose how many comments were made
-    media_id     INTEGER NOT NULL REFERENCES medias(id) ON DELETE CASCADE, -- This will be the id of the media that had the comment
-    content      TEXT NOT NULL,                                            -- This will be the content of the comment. For now, it will be a text
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                      -- This will be the date when the comment was made
-    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- This will be the date when the comment was updated
+    id               SERIAL PRIMARY KEY,
+    user_id          INTEGER REFERENCES users(id) ON DELETE SET NULL, -- This will be the id of the user who made the comment. On delete, set null because I don't want to lose how many recomendations were made
+    recommendation_id INTEGER NOT NULL REFERENCES media_recommendations_stats(id) ON DELETE CASCADE, -- This will be the id of the recommendation that had the comment
+    comment          TEXT NOT NULL,                                   -- This will be the comment of the user
+    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP              -- This will be the date when the comment was made
 );
 
 /*
-    Media comments table indexes
+    Media recommendations comments table indexes
 */
-CREATE INDEX media_comments_id_idx ON media_comments(id);
-CREATE INDEX media_comments_user_id_idx ON media_comments(user_id);
-CREATE INDEX media_comments_media_id_idx ON media_comments(media_id);
-CREATE INDEX media_comments_created_at_idx ON media_comments(created_at);
+CREATE INDEX media_recommendations_comments_id_idx ON media_recommendations_comments(id);
+CREATE INDEX media_recommendations_comments_user_id_idx ON media_recommendations_comments(user_id);
+CREATE INDEX media_recommendations_comments_recommendation_id_idx ON media_recommendations_comments(recommendation_id);

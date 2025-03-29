@@ -39,6 +39,7 @@ lib/
 *.pem
 *.crt
 *.key
+*.properties
 
 # Test Reports
 surefire-reports/
