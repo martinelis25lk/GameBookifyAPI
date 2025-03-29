@@ -1,0 +1,54 @@
+# Compiled class files
+target/
+out/
+bin/
+
+# Logs
+*.log
+logs/
+nohup.out
+
+# IDE files
+/.idea/
+/*.iml
+/.vscode/
+/*.swp
+/.classpath
+/.project
+/.settings/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Maven / Gradle
+.mvn/
+!mvn/wrapper/maven-wrapper.jar
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Dependencies
+lib/
+
+# Spring Boot specific
+.env
+*.jks
+*.p12
+*.keystore
+*.pem
+*.crt
+*.key
+
+# Test Reports
+surefire-reports/
+test-output/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Node.js if frontend exists
+node_modules/
+npm-debug.log
+yarn-error.log
