@@ -23,6 +23,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(SocialMediaAlrealdyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleSocialMediaAlrealdyExistsException(SocialMediaAlrealdyExistsException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Social media already exists");
+        errorResponse.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<Map<String, String>> handleInvalidPasswordException(InvalidPasswordException ex) {
         Map<String, String> errorResponse = new HashMap<>();
