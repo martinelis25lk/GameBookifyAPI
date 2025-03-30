@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -38,5 +40,9 @@ public class UserSocialMediaService {
         userSocialMediaRepository.save(userSocialMedia);
         log.info("User social media with id {} saved successfully", userSocialMedia.getId());
         return userSocialMedia;
+    }
+
+    public List<UserSocialMedia> findUserSocialMediasByUserId(User user) {
+        return userSocialMediaRepository.findByUserId(user);
     }
 }

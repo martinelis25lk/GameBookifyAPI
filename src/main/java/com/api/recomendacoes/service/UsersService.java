@@ -4,11 +4,13 @@ import com.api.recomendacoes.domain.user.User;
 import com.api.recomendacoes.domain.user.UserRequestDTO;
 import com.api.recomendacoes.errors.InvalidPasswordException;
 import com.api.recomendacoes.errors.users.UserAlreadyExistsException;
+import com.api.recomendacoes.errors.users.UserNotFoundException;
 import com.api.recomendacoes.repositories.UserRepository;
 import com.api.recomendacoes.util.PasswordUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,6 +21,8 @@ import java.util.Optional;
 public class UsersService {
 
     private final UserRepository userRepository;
+
+    private final UserSocialMediaService userSocialMediaService;
 
     @Transactional
     public User createUser(UserRequestDTO userRequestDTO) {
@@ -46,6 +50,13 @@ public class UsersService {
         this.userRepository.save(newUser);
 
         return newUser;
+    }
+
+    public User findUserById(Integer id) {
+        return this.userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        userSocialMediaService
     }
 
     public String passwordValidation(String password){
