@@ -2,8 +2,9 @@ package com.api.recomendacoes.service;
 
 import com.api.recomendacoes.domain.socialmedia.SocialMedia;
 import com.api.recomendacoes.domain.socialmedia.SocialMediaRequestDTO;
-import com.api.recomendacoes.errors.SocialMediaAlrealdyExistsException;
+import com.api.recomendacoes.errors.socialmedia.SocialMediaAlrealdyExistsException;
 import com.api.recomendacoes.repositories.SocialMediaRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class SocialMediaService {
 
     private final SocialMediaRepository socialMediaRepository;
 
+    @Transactional
     public SocialMedia saveSocialMedia(SocialMediaRequestDTO socialMediaRequestDTO) {
         if (socialMediaRepository.findByName(socialMediaRequestDTO.name()).isPresent()) {
             log.warn("Social media with name {} already exists", socialMediaRequestDTO.name());

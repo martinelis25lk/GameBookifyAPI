@@ -1,5 +1,9 @@
 package com.api.recomendacoes.errors;
 
+import com.api.recomendacoes.errors.socialmedia.SocialMediaAlrealdyExistsException;
+import com.api.recomendacoes.errors.socialmedia.SocialMediaNotFoundException;
+import com.api.recomendacoes.errors.users.UserAlreadyExistsException;
+import com.api.recomendacoes.errors.users.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -27,6 +31,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleSocialMediaAlrealdyExistsException(SocialMediaAlrealdyExistsException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", "Social media already exists");
+        errorResponse.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "User not found");
+        errorResponse.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(SocialMediaNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleSocialMediaNotFoundException(SocialMediaNotFoundException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Social media not found");
         errorResponse.put("message", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
