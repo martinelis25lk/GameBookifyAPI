@@ -1,4 +1,4 @@
-package com.api.recomendacoes.errors;
+package com.api.recomendacoes.errors.socialmedia;
 
 public class SocialMediaAlrealdyExistsException extends RuntimeException {
     public SocialMediaAlrealdyExistsException(String message) {
