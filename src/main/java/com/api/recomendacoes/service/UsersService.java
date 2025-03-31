@@ -1,16 +1,22 @@
 package com.api.recomendacoes.service;
 
+import com.api.recomendacoes.domain.user.SocialMediasUserDTO;
 import com.api.recomendacoes.domain.user.User;
 import com.api.recomendacoes.domain.user.UserRequestDTO;
+import com.api.recomendacoes.domain.user.UserRetrieveDTO;
+import com.api.recomendacoes.domain.usersocialmedia.UserSocialMedia;
 import com.api.recomendacoes.errors.InvalidPasswordException;
 import com.api.recomendacoes.errors.users.UserAlreadyExistsException;
+import com.api.recomendacoes.errors.users.UserNotFoundException;
 import com.api.recomendacoes.repositories.UserRepository;
 import com.api.recomendacoes.util.PasswordUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,6 +25,8 @@ import java.util.Optional;
 public class UsersService {
 
     private final UserRepository userRepository;
+
+    private final UserSocialMediaService userSocialMediaService;
 
     @Transactional
     public User createUser(UserRequestDTO userRequestDTO) {
@@ -46,6 +54,30 @@ public class UsersService {
         this.userRepository.save(newUser);
 
         return newUser;
+    }
+
+    public UserRetrieveDTO findUserById(Integer id) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        List<UserSocialMedia> socialMedias = this.userSocialMediaService.findUserSocialMediasByUserId(user);
+
+        List<SocialMediasUserDTO> socialMediasUserDTO = socialMedias.stream().map(
+                userSocialMedia -> new SocialMediasUserDTO(
+                        userSocialMedia.getSocialMediaId().getId(),
+                        userSocialMedia.getSocialMediaId().getName(),
+                        userSocialMedia.getSocialMediaId().getIcon_url(),
+                        userSocialMedia.getSocialMediaUrl()
+                )).toList();
+
+        return new UserRetrieveDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfilePicture(),
+                user.getProfileDescription(),
+                socialMediasUserDTO
+        );
     }
 
     public String passwordValidation(String password){

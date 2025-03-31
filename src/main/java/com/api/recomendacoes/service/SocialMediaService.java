@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,5 +32,13 @@ public class SocialMediaService {
         socialMediaRepository.save(socialMedia);
         log.info("Social media with name {} saved successfully", socialMediaRequestDTO.name());
         return socialMedia;
+    }
+
+    public List<SocialMedia> findSocialMedias(Optional<String> name) {
+        if (name.isPresent()) {
+            return socialMediaRepository.findByNameContainingIgnoreCase(name.get());
+        } else {
+            return socialMediaRepository.findAll();
+        }
     }
 }
