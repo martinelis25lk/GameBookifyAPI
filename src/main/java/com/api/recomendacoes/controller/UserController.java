@@ -2,6 +2,7 @@ package com.api.recomendacoes.controller;
 
 import com.api.recomendacoes.domain.user.User;
 import com.api.recomendacoes.domain.user.UserRequestDTO;
+import com.api.recomendacoes.domain.user.UserRetrieveDTO;
 import com.api.recomendacoes.service.UsersService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,8 @@ public class UserController {
         return ResponseEntity.ok(createdUser);
     }
 
-    @GetMapping
-    public String getUser() {
-        return "User listing";
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<UserRetrieveDTO> getUser(@PathVariable Integer id) {
+        return ResponseEntity.ok(usersService.findUserById(id));
     }
 }

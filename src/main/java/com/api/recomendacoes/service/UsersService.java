@@ -1,7 +1,10 @@
 package com.api.recomendacoes.service;
 
+import com.api.recomendacoes.domain.user.SocialMediasUserDTO;
 import com.api.recomendacoes.domain.user.User;
 import com.api.recomendacoes.domain.user.UserRequestDTO;
+import com.api.recomendacoes.domain.user.UserRetrieveDTO;
+import com.api.recomendacoes.domain.usersocialmedia.UserSocialMedia;
 import com.api.recomendacoes.errors.InvalidPasswordException;
 import com.api.recomendacoes.errors.users.UserAlreadyExistsException;
 import com.api.recomendacoes.errors.users.UserNotFoundException;
@@ -13,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,11 +56,28 @@ public class UsersService {
         return newUser;
     }
 
-    public User findUserById(Integer id) {
-        return this.userRepository.findById(id)
+    public UserRetrieveDTO findUserById(Integer id) {
+        User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
-        userSocialMediaService
+        List<UserSocialMedia> socialMedias = this.userSocialMediaService.findUserSocialMediasByUserId(user);
+
+        List<SocialMediasUserDTO> socialMediasUserDTO = socialMedias.stream().map(
+                userSocialMedia -> new SocialMediasUserDTO(
+                        userSocialMedia.getSocialMediaId().getId(),
+                        userSocialMedia.getSocialMediaId().getName(),
+                        userSocialMedia.getSocialMediaId().getIcon_url(),
+                        userSocialMedia.getSocialMediaUrl()
+                )).toList();
+
+        return new UserRetrieveDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfilePicture(),
+                user.getProfileDescription(),
+                socialMediasUserDTO
+        );
     }
 
     public String passwordValidation(String password){
